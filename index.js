@@ -14,68 +14,21 @@ Go code!
 */
 require('dotenv').config()
 const express = require('express');
-const projectDb = require('./data/helpers/projectModel');
-// const logger = require('./logger')
+const projectRoutes = require('./projects/projects');
+const actionRoutes = require('./actions/actions');
+const logger = require('./logger');
 
 const server = express();
 server.use(express.json());
-// server.use(logger)
+server.use(logger);
+server.use('/projects', projectRoutes);
+server.use('/actions', actionRoutes);
 
 const port = process.env.PORT;
 
-server.get('/projects', (req, res) => {
-    console.log(res)
-    projectDb.get().then(project => {
-        res.send(project);
-    })
-    .catch(err => res.json({message: err}))
-})
 
-server.get('/projects/:id', (req, res) => {
-    const id = req.params.id
-    console.log(res)
-    projectDb.get(id).then(project => {
-        if(!project) {
-            res.status(404).json({ message: "The project with the specified ID does not exist."})
-        } else {
-            res.send(project);
-        }
-    })
-    .catch(err => res.json({message: err}))
-})
 
-server.post('/projects', (req, res) => {
-    const newProject = req.body;
-    projectDb.insert(newProject).then(project => {
-        res.status(201).json(project);
-    })
-    .catch(err => res.json({message: err}))
-})
-
-server.put('/projects/:id', (req, res) => {
-    const id = req.params.id
-    const projectUpdate = req.body;
-    projectDb.update(id, projectUpdate).then(project => {
-        if(!project) {
-            res.status(404).json({ message: "The project with the specified ID does not exist."})
-        } else {
-            res.json(project)
-        }
-        
-    })
-    .catch(err => res.json({message: err}))
-})
-
-server.delete('/projects/:id', (req, res) => {
-    const id = req.params.id
-    projectDb.remove(id).then(project => {
-        if(!project) {
-            res.status(404).json({ message: "The project with the specified ID does not exist."})
-        } else {
-            res.status(204).json(project);
-        }
-    })
-})
+server.use('/', (req, res) => res.send('API up and running!'));
 
 server.listen(port, () => {
     console.log(`=============================\n Server listing on port ${port} \n=============================`)
